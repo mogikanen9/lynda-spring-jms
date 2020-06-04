@@ -2,6 +2,8 @@
 package com.mogikanensoftware.bookstore.order.config;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.mogikanensoftware.bookstore.order.model.BookOrder;
 
@@ -16,10 +18,15 @@ public class JmsConfig {
 
     @Bean
     public MessageConverter jacksonJmsMessageConverter() {
-        MappingJackson2MessageConverter conv = new MappingJackson2MessageConverter();
+        final MappingJackson2MessageConverter conv = new MappingJackson2MessageConverter();
         conv.setTargetType(MessageType.TEXT);
         conv.setTypeIdPropertyName("_type");
-        conv.setTypeIdMappings(Collections.singletonMap("bookstore.BookOrder",BookOrder.class));
+        
+        Map<String,Class<?>> typeIdMappings = new HashMap<>();
+        typeIdMappings.put("bookstore.BookOrder",BookOrder.class);
+     
+        
+        conv.setTypeIdMappings(typeIdMappings);
         return conv;
     }
 }

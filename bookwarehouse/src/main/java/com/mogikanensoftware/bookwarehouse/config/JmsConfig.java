@@ -2,10 +2,13 @@
 package com.mogikanensoftware.bookwarehouse.config;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.jms.ConnectionFactory;
 
 import com.mogikanensoftware.bookwarehouse.order.model.BookOrder;
+import com.mogikanensoftware.bookwarehouse.order.model.ProcessedBookOrder;
 
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -33,7 +36,12 @@ public class JmsConfig {
         MappingJackson2MessageConverter conv = new MappingJackson2MessageConverter();
         conv.setTargetType(MessageType.TEXT);
         conv.setTypeIdPropertyName("_type");
-        conv.setTypeIdMappings(Collections.singletonMap("bookstore.BookOrder",BookOrder.class));
+
+        Map<String,Class<?>> typeIdMappings = new HashMap<>();
+        typeIdMappings.put("bookstore.BookOrder",BookOrder.class);
+        typeIdMappings.put("bookwarehouse.ProcessedBookOrder", ProcessedBookOrder.class);
+        
+        conv.setTypeIdMappings(typeIdMappings);
         return conv;
     }
 }
