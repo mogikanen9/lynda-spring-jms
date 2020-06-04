@@ -17,6 +17,7 @@ public class JmsConfig {
             DefaultJmsListenerContainerFactoryConfigurer configurer) {
         DefaultJmsListenerContainerFactory containerFactory = new DefaultJmsListenerContainerFactory();
         configurer.configure(containerFactory, factory);
+        containerFactory.setConcurrency("1-1");
         return containerFactory;
     }
 }

@@ -1,4 +1,7 @@
+
 package com.mogikanensoftware.bookstore.order.service;
+
+import com.mogikanensoftware.bookstore.order.model.BookOrder;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.core.JmsTemplate;
@@ -12,8 +15,8 @@ public class OrderQueueService {
     
     private JmsTemplate jmsTemplate;    
 
-    public void send(){
-        this.jmsTemplate.convertAndSend("order-queue", "Hello");
+    public void send(BookOrder bookOrder){
+        this.jmsTemplate.convertAndSend("order-queue", bookOrder);
         log.info("order submitted to queue");
     }
 
