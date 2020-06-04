@@ -1,13 +1,20 @@
 
 package com.mogikanensoftware.bookwarehouse.config;
 
+import java.util.Collections;
+
 import javax.jms.ConnectionFactory;
+
+import com.mogikanensoftware.bookwarehouse.order.model.BookOrder;
 
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
+import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
+import org.springframework.jms.support.converter.MessageConverter;
+import org.springframework.jms.support.converter.MessageType;
 
 @Configuration
 public class JmsConfig {
@@ -19,5 +26,14 @@ public class JmsConfig {
         configurer.configure(containerFactory, factory);
         containerFactory.setConcurrency("1-1");
         return containerFactory;
+    }
+
+    @Bean
+    public MessageConverter jacksonJmsMessageConverter() {
+        MappingJackson2MessageConverter conv = new MappingJackson2MessageConverter();
+        conv.setTargetType(MessageType.TEXT);
+        conv.setTypeIdPropertyName("_type");
+        conv.setTypeIdMappings(Collections.singletonMap("bookstore.BookOrder",BookOrder.class));
+        return conv;
     }
 }
