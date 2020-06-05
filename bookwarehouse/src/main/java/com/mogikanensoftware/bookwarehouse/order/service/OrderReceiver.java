@@ -2,12 +2,14 @@
 package com.mogikanensoftware.bookwarehouse.order.service;
 
 import com.mogikanensoftware.bookwarehouse.order.model.BookOrder;
+import com.mogikanensoftware.bookwarehouse.order.model.ProcessedBookOrder;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -16,29 +18,33 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class OrderReceiver {
 
-    private OrderProcessingService orderProcessingService;
+    private final OrderProcessingService orderProcessingService;
 
     @JmsListener(destination = "order-queue", containerFactory = "warehouseContainerFactory")
-    public void receive(@Payload BookOrder bookOrder,
-            @Header(name = "storeId") String storeId,
-            @Header(name = "orderState") String orderState,
-            MessageHeaders headers) {
+    @SendTo(value = "processed-book-orders-queue")
+    public ProcessedBookOrder receive(@Payload
+    final BookOrder bookOrder,
+            @Header(name = "storeId")
+            final String storeId,
+            @Header(name = "orderState")
+            final String orderState,
+            final MessageHeaders headers) {
 
         try {
-            log.info("Received order {}, storeId->{}, orderState->{}, headers->{}", bookOrder, storeId, orderState,headers);
+            log.info("Received order {}, storeId->{}, orderState->{}, headers->{}", bookOrder, storeId, orderState, headers);
 
             if (bookOrder.getBookOrderId().equals("000")) {
                 throw new RuntimeException("invalid order 000");
             }
 
-            this.orderProcessingService.process(bookOrder, storeId, orderState);
-        } catch (Exception e) {
+            return this.orderProcessingService.process(bookOrder, storeId, orderState);
+        } catch (final Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     @Autowired
-    public OrderReceiver(OrderProcessingService orderProcessingService) {
+    public OrderReceiver(final OrderProcessingService orderProcessingService) {
         this.orderProcessingService = orderProcessingService;
     }
 }
