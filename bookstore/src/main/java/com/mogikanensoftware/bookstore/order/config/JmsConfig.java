@@ -1,7 +1,6 @@
 
 package com.mogikanensoftware.bookstore.order.config;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,7 +13,8 @@ import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
 
 @Configuration
-public class JmsConfig {
+public class JmsConfig{
+
 
     @Bean
     public MessageConverter jacksonJmsMessageConverter() {
@@ -29,4 +29,5 @@ public class JmsConfig {
         conv.setTypeIdMappings(typeIdMappings);
         return conv;
     }
+
 }
