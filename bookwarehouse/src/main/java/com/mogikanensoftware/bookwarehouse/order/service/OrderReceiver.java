@@ -20,6 +20,11 @@ public class OrderReceiver {
 
         try {
             log.info("Received order {}", bookOrder);
+
+            if(bookOrder.getBookOrderId().equals("000")){
+                throw new RuntimeException("invalid order 000");
+            }
+
             this.orderProcessingService.process(bookOrder);
         } catch (Exception e) {
             throw new RuntimeException(e);

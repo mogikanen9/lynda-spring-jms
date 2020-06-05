@@ -15,11 +15,18 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
+import org.springframework.jms.connection.JmsTransactionManager;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Configuration
+@EnableTransactionManagement
+@Slf4j
 public class JmsConfig {
 
     @Bean
@@ -28,6 +35,10 @@ public class JmsConfig {
         DefaultJmsListenerContainerFactory containerFactory = new DefaultJmsListenerContainerFactory();
         configurer.configure(containerFactory, factory);
         containerFactory.setConcurrency("1-1");
+        containerFactory.setTransactionManager(this.jmsTransactionManager(factory));
+        containerFactory.setErrorHandler(t->{
+            log.error("Exception occured: {}", t.getMessage());
+        });
         return containerFactory;
     }
 
@@ -43,5 +54,10 @@ public class JmsConfig {
         
         conv.setTypeIdMappings(typeIdMappings);
         return conv;
+    }
+
+    @Bean(name = "jmsTransactionManager")
+    public PlatformTransactionManager jmsTransactionManager(final ConnectionFactory connectionFactory) {
+        return new JmsTransactionManager(connectionFactory);
     }
 }
