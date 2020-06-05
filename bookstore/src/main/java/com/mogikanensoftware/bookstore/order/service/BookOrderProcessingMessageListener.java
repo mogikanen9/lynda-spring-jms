@@ -1,9 +1,7 @@
 
 package com.mogikanensoftware.bookstore.order.service;
 
-import javax.jms.JMSException;
 import javax.jms.Message;
-import javax.jms.TextMessage;
 
 import org.springframework.jms.annotation.JmsListener;
 import org.springframework.stereotype.Component;
