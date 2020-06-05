@@ -6,10 +6,12 @@ import com.mogikanensoftware.bookwarehouse.order.model.ProcessedBookOrder;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jms.annotation.JmsListener;
+import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
 
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +24,7 @@ public class OrderReceiver {
 
     @JmsListener(destination = "order-queue", containerFactory = "warehouseContainerFactory")
     @SendTo(value = "processed-book-orders-queue")
-    public ProcessedBookOrder receive(@Payload
+    public Message<ProcessedBookOrder> receive(@Payload
     final BookOrder bookOrder,
             @Header(name = "storeId")
             final String storeId,
@@ -37,7 +39,13 @@ public class OrderReceiver {
                 throw new RuntimeException("invalid order 000");
             }
 
-            return this.orderProcessingService.process(bookOrder, storeId, orderState);
+            ProcessedBookOrder pbo = this.orderProcessingService.process(bookOrder, storeId, orderState);
+            return MessageBuilder
+            .withPayload(pbo)
+            .setHeader("orderState", orderState)
+            .setHeader("storeId", storeId)
+            .build();
+
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
